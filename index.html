@@ -1,0 +1,388 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Analytics Full Life Cycle Project [Independent]</title>
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, #F8F9FA);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Analytics Full Life Cycle Project [Independent]"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p>In this series of labs, you will go through the full  analytics life cycle of  taking data through the {Ingest → Store → Transform → Analyse}  life cycle. We will do this using our own GCP accounts.</p>
+<aside class="warning"><p>In the previous GCP Lab you were guided through each step. In this lab, a few steps only will be provided. If you need more details, look out for instructions on GCP[g]. This is an attempt to take off the training wheels some more.</p>
+</aside>
+<h2><strong>What you&#39;ll build</strong></h2>
+<ul>
+<li>A full life cycle Analytics Project</li>
+<li>Ingest → Transform → Store → Analyze</li>
+</ul>
+<p><br>In this project, we will use Ecommerce transactions data from a Brazilian online marketplace - olist.com. The purpose of using this data set is to get a taste for what analytics is like in a business setting. At 100K transactions, This is not as big a data set as the Detroit 9-1-1 data set which had over a million records. However, the purpose of this project is to get a sense for analytics in a business context. We can follow the same set of steps for a dataset with billions of transactions, such as from amazon.com, and we would not need to change anything in our work flow. The steps and tools we follow in this series of labs will enable us to do analytics even if the records run into the billions. The GCP tools we will be using are: Cloud Storage, Data prep, BigQuery, and DataStudio. </p>
+<p><img style="max-width: 624.00px" src="img/981fa54c2a896d93.png"></p>
+<h2 class="checklist"><strong>What you&#39;ll learn</strong></h2>
+<ul class="checklist">
+<li>Doing analytics in a business context</li>
+<li>Ingest, handle, transform and move Big Data in GCP</li>
+<li>Cloud Storage, Data prep, BigQuery, and DataStudio. </li>
+</ul>
+<h2><strong>What you&#39;ll need</strong></h2>
+<ul>
+<li>A recent version of <a href="https://www.google.com/chrome/" target="_blank">Chrome</a>. Note, this works in other browsers as well, but this case is built using chrome.</li>
+<li>Enrolled in the free Google GCP credits.</li>
+<li>Preferably Enrolled using a Gmail ID.</li>
+<li>Reasonably fast and stable internet connection</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="About the Data Set" duration="0">
+        <p>This data set consists of ecommerce transactions on a Brazilian We will start off by logging into the Google Console. </p>
+<p>This is a Brazilian ecommerce public dataset of orders made at <a href="http://www.olist.com/" target="_blank">Olist Store</a>. The dataset has information of 100k orders from 2016 to 2018 made at multiple marketplaces in Brazil. Its 21 supportive features allows viewing an order from multiple dimensions: from order status, price and freight performance to customer location, product attributes and finally reviews written by customers.</p>
+<p>This is real commercial data, it has been anonymised, and references to the companies and partners in the review text have been replaced with the names of Game of Thrones great houses.</p>
+<h2>Context</h2>
+<p>This dataset was generously provided by Olist, the largest department store in Brazilian marketplaces. Olist connects small businesses from all over Brazil to channels without hassle and with a single contract. Those merchants are able to sell their products through the Olist Store and ship them directly to the customers using Olist logistics partners.</p>
+<p>After a customer purchases the product from Olist Store a seller gets notified to fulfill that order. Once the customer receives the product, or the estimated delivery date is due, the customer gets a satisfaction survey by email where he can give a note for the purchase experience and write down some comments.</p>
+<h2>Attention</h2>
+<ol type="1" start="1">
+<li>Note that a comment may be repeated if an order has two or more different products.</li>
+<li>An order may also be fulfilled by more than one seller if the customer purchases mor than one product.</li>
+<li>All text identifying stores and partners where replaced by the names of Game of Thrones great houses.</li>
+</ol>
+<h2>Datasets</h2>
+<p>We are releasing two independent datasets intended for different types of studies. Each row in those datasets corresponds to a customer order, product and review.</p>
+<h3>Unclassified Orders Dataset</h3>
+<p>This dataset includes 100k rows and 21 feature variables. Each row in this data set represents a single transaction on the Olist.com ecommerce website.</p>
+<p>olist_public_dataset_v2.csv</p>
+<h3>Category Name Translation</h3>
+<p>Consists of 71 rows and 2 columns. Translates the product_category_name from Portugese to english. product_category_name_translation.csv</p>
+<h2>Acknowledgements</h2>
+<p>Thanks to Olist for releasing this dataset.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Log into Google Cloud Console" duration="0">
+        <p>We will start off by logging into the Google Console. </p>
+<h2><strong>Log in to Google Cloud Console</strong></h2>
+<p>Type in console.cloud.google.com in your browser.</p>
+<p>Log in using the email account with which you signed up for free GCP trial credits.</p>
+<p><img style="max-width: 624.00px" src="img/8f35c83411e51ff5.png"></p>
+<p>Click on <strong>Next</strong>.</p>
+<p>Google Cloud Console shows up as below:</p>
+<p><img style="max-width: 624.00px" src="img/a0a2ea19aa23804.png"></p>
+<p>Ensure you are logged in with the correct account by clicking on user icon on top right.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create/ Select a GCP Project" duration="0">
+        <p>The first step in any Google Cloud project is to create or select a gcp project under which we will execute the analytics project. I will use the same project Detroit911 to execute the bizcom project as well since I have run out of my quota of number of new projects I can assign to my free GCP billing account.</p>
+<p>Go to Google Cloud Platform Console home page and make sure that Detroit911 is selected in the Project drop down. </p>
+<p>Make sure you select this new project. If successfully selected, its name will show up in the projects dropdown as shown in screen-shot below.<img style="max-width: 474.00px" src="img/5d36451048e20e98.png"></p>
+<aside class="warning"><p>It is essential to ensure that the correct project is always selected. All resources are created and used inside a project and all work is saved under a project. </p>
+</aside>
+<p>In the next lab, we will start off by ingesting our data into the GCP platform.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ingest Data (Cloud Storage)" duration="0">
+        <p>There are many different services that allow you to store data into GCP. We will  start by ingesting our data into Google Cloud Storage as it is one of the cheapest options.</p>
+<h2><strong>Create a Storage Bucket on Google Cloud Storage</strong></h2>
+<p>In the Console, go to <strong>Navigation menu &gt; Storage &gt; Browser &gt; Create Bucket. </strong></p>
+<p><img style="max-width: 624.00px" src="img/7eda57fa17a79d6a.png"></p>
+<p><img alt="create-bucket.png" style="max-width: 474.00px" src="img/d3c3748473fca67d.png"></p>
+<p><strong>Name:</strong> Enter a unique name for your bucket.</p>
+<p><strong>Bucket naming rules:</strong></p>
+<ul>
+<li>Do not include sensitive information in the bucket name, because the bucket namespace is global and publicly visible.</li>
+<li>Bucket names must contain only lowercase letters, numbers, dashes (-), underscores (_), and dots (.). Names containing dots require <a href="https://cloud.google.com/storage/docs/domain-name-verification" target="_blank">verification</a>.</li>
+<li>Bucket names must start and end with a number or letter.</li>
+<li>Bucket names must contain 3 to 63 characters. Names containing dots can contain up to 222 characters, but each dot-separated component can be no longer than 63 characters.</li>
+<li>Bucket names cannot be represented as an IP address in dotted-decimal notation (for example, 192.168.5.4).</li>
+<li>Bucket names cannot begin with the &#34;goog&#34; prefix.</li>
+<li>Bucket names cannot contain &#34;google&#34; or close misspellings of &#34;google&#34;.</li>
+<li>Also, for DNS compliance and future compatibility, you should not use underscores (_) or have a period adjacent to another period or dash. For example, &#34;..&#34; or &#34;-.&#34; or &#34;.-&#34; are not valid in DNS names.</li>
+</ul>
+<p><strong>Storage class:</strong> Regional </p>
+<p><strong>Location:</strong> Uscentral1</p>
+<p>Once you&#39;ve gotten your bucket configured, click <strong>Create</strong>:</p>
+<p>,<img style="max-width: 624.00px" src="img/e956544b6e9220eb.png"></p>
+<p><img style="max-width: 624.00px" src="img/149158cb341a3cd1.png"></p>
+<p>Enter <strong>bucket name</strong> &gt; Select <strong>MultiRegional</strong> &gt; Click <strong>Create</strong>.</p>
+<p><img style="max-width: 603.00px" src="img/32654ec2f4bc587b.png"></p>
+<p>New bucket called olistdata created under project Detroit911.</p>
+<p><img style="max-width: 624.00px" src="img/df023e67652bfdf3.png"></p>
+<p>This bucket is now ready to store data. In next step we will get our data on our local computer.</p>
+<h2><strong>Download data on a local computer</strong></h2>
+<p>Download these CSV files which contains the olist transactions data and store it locally on your computer.</p>
+<p>Transactions Data Set →   <a href="http://bit.ly/2CSclBs" target="_blank"><paper-button class="colored" raised><iron-icon icon="file-download"></iron-icon>Download Olist Transactions Data</paper-button></a></p>
+<p>Product Category English Names →  <a href="http://bit.ly/2qj6FJ4" target="_blank"><paper-button class="colored" raised><iron-icon icon="file-download"></iron-icon>Download Olist Category English Names Data</paper-button></a></p>
+<h2><strong>Ingest Data into Google Cloud Storage Bucket</strong></h2>
+<p>Drag and drop this file from your computer into the cloud storage bucket.</p>
+<p><img style="max-width: 624.00px" src="img/67d237d61b26f9b9.png"></p>
+<p>That&#39;s it — you&#39;ve just moved your data file from local computer and stored it in the cloud in a Cloud Storage bucket!</p>
+<p>Now that you have ingested data into GCP, we will transform it using Data Prep.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Transform Data (Data Prep)" duration="0">
+        <p>In this lab, we will use Data Prep to clean up and transform the data and prepare it for analysis.</p>
+<h2><strong>Start Cloud Data Prep</strong></h2>
+<p><img style="max-width: 33.00px" src="img/5c4a4fe97e8a0da3.png"> &gt; Big Data &gt;  Dataprep &gt; Click on <img style="max-width: 112.00px" src="img/6d63f954b80bc742.png"></p>
+<p>If you have already used Dataprep on this project earlier (which you should have if you did the GCP(g) project, then you will see a screen similar to the following:</p>
+<p><img style="max-width: 624.00px" src="img/925b34a9d504149a.png"></p>
+<p>IF you have not used Dataprep on this project earlier, then you will be asked to accept a series of terms and conditions. Accept them as shown in the following few screenshots.</p>
+<p><img style="max-width: 427.00px" src="img/6cb7c4f87c6abfd9.png"></p>
+<p><img style="max-width: 427.00px" src="img/bb9a1eacc6c87c0c.png"></p>
+<p>This step might take some time to complete.</p>
+<p><img style="max-width: 624.00px" src="img/951fec30c1c88752.png"></p>
+<p><img style="max-width: 624.00px" src="img/c4392124ebf246f2.png"></p>
+<h2><strong>Create a New Data Flow</strong></h2>
+<p>Click on flows icon - <img style="max-width: 40.00px" src="img/df7939e6d8853c63.png"> in left hand side menu bar. Flows you have created till now are listed.</p>
+<p><img style="max-width: 624.00px" src="img/14701e555b5a7afc.png"></p>
+<p>Click <strong>Create Flow</strong></p>
+<p><img style="max-width: 624.00px" src="img/3be417951bc31bcc.png"></p>
+<p>Click <strong>Create</strong></p>
+<p><img style="max-width: 624.00px" src="img/96ae4b3d4e928b80.png"></p>
+<h2><strong>Add a Source Data Set to Flow</strong></h2>
+<p>Click <strong>Add Datasets</strong></p>
+<p><img style="max-width: 624.00px" src="img/9a9dce288d2e8fe7.png"></p>
+<p>Click <strong>Import Datasets</strong></p>
+<p>Select <strong>GCS</strong> → Click on bucket: <strong>olistdata </strong></p>
+<p>List of files available in olistdata bucket is displayed.</p>
+<p><img style="max-width: 624.00px" src="img/4966f1e9ac4dc631.png"></p>
+<p>Click on<img style="max-width: 20.00px" src="img/9ebb73a7cf05acd9.png">  against both data sets.</p>
+<p>Datasets are now previewed on right hand pane.</p>
+<p><img style="max-width: 295.00px" src="img/fad5c9ee1175b31b.png"></p>
+<p>Click <strong>Import &amp; Add to Flow</strong></p>
+<p>A Dataflow with both csv files are displayed. Details of data is also displayed in the Details pane on right.</p>
+<p><img style="max-width: 624.00px" src="img/e7b2ac735d17c53a.png"></p>
+<h2><strong>Add A Recipe to Join The Data Sets To Get English Descriptions</strong></h2>
+<p>Click on <strong>olist_public_dataset_v2.csv</strong> in panel → Click on <strong>Add new Recipe</strong></p>
+<p><img style="max-width: 624.00px" src="img/b2d21869342d81c9.png"></p>
+<p>Click <strong>Edit Recipe</strong></p>
+<p><img style="max-width: 333.00px" src="img/a56e7288a2e9bc2a.png"></p>
+<p>Select <strong>Join [</strong><img style="max-width: 29.00px" src="img/45f218132be48be0.png"><strong>]</strong> from menu of operations at top.</p>
+<p><img style="max-width: 547.00px" src="img/6d4a98f42b80a29f.png"></p>
+<p>Select <strong>product_category_name_translation.csv</strong> from list of data sets. → Click <strong>Preview</strong></p>
+<p><img style="max-width: 624.00px" src="img/aaf4a88f1965e61.png"></p>
+<p>Fields in both tables are displayed as below:</p>
+<p><img style="max-width: 624.00px" src="img/f4ec51ec462254a6.png"></p>
+<p>Click <strong>Select Join Keys</strong></p>
+<p>Data Prep automatically selects the keys on which the two tables can be joined.</p>
+<p>If the join fields selected are not what you want, you can always edit it here. In this case, the selection is correct for us.</p>
+<p>&#34;Product_category_name&#34; field in &#34;olist_public_dataset_v2&#34; file  = &#34;Product_category_name&#34; field in &#34;product_category_name_translation&#34; file</p>
+<p>The fields in &#34;product_category_name_translation&#34; file are renamed to column2 and column3 to avoid any confusion with any similarly named fields from &#34;olist_public_dataset_v2&#34; file.</p>
+<p><img style="max-width: 491.00px" src="img/2ee3563979f7c07a.png"></p>
+<p>Now, click on <strong>Edit Settings</strong> to make a few changes → <strong>Change column name prefix</strong> of joined in file to &#34;tbl2_&#34; → <strong>Check always include</strong> all columns in selection checkbox</p>
+<p><img style="max-width: 588.00px" src="img/422046895abf8e6b.png"></p>
+<p><strong>Scroll down</strong> to bottom of list of columns to ensure that the second column from joined in table is also included in joined table.</p>
+<p><img style="max-width: 461.00px" src="img/ce1ceecd7f78ac0d.png"></p>
+<p>Now carefully inspect the <strong>PREVIEW</strong> pane.</p>
+<p><img style="max-width: 624.00px" src="img/5b6df925897a7bf.png"></p>
+<p>At the top, the details provide you the following information:</p>
+<ol type="1" start="1">
+<li>The Input rows came from file &#34;olist_public_dataset_v2&#34;</li>
+<li>Dataprep picked a sample of 26,498 records from the 100K records for preview purposes.</li>
+<li>The joined in records came from file &#34;product_category_name_translation&#34;</li>
+<li>Dataprep used all records = 71 from this joined in table.</li>
+<li>The number of input rows were same as no. of output rows = 26,498.</li>
+</ol>
+<p>Looking at the column names reveals that the column2 field from joined in table has been prefixed with &#34;tbl2_&#34; as we had specified.</p>
+<p>If we scroll to the extreme right of the preview, we find the column tbl2_column3&#34; which is the English name translation for the Portugese product categories.</p>
+<p><img style="max-width: 491.00px" src="img/95ee17f796e6124c.png"></p>
+<p>The Preview looks all good! So click on <strong>Add to Recipe</strong></p>
+<p>You will notice that the result now has 27 columns instead of 25. The two additional columns from the translation file have been added.</p>
+<p><img style="max-width: 624.00px" src="img/7d81c6895b707808.png"></p>
+<h2><strong>Add Steps to Recipe to Rename and Drop Columns</strong></h2>
+<p><strong>Scroll to right</strong> most column:</p>
+<p><img style="max-width: 313.00px" src="img/1f9a44d0f44f1b36.png"></p>
+<p>Click on <strong>tbl2_column3</strong> → Click on <strong>Rename</strong> → Click <strong>Edit</strong> → Change name of column to <strong>CatEnglish → </strong>Click <strong>Add</strong></p>
+<p>product_category_name_translation<img style="max-width: 315.00px" src="img/a85e3637f7860b00.png"></p>
+<p><img style="max-width: 325.00px" src="img/8865de336d199851.png"></p>
+<p><strong>Scroll back to left</strong> most column:</p>
+<p><img style="max-width: 588.00px" src="img/c6456778a623681e.png"></p>
+<p>Click on <strong>tbl2_column2</strong> → Click <strong>Add</strong> on Delete Column</p>
+<p><img style="max-width: 624.00px" src="img/2700476553e4a1c6.png"></p>
+<p>Review the Recipe pane. Till now we have joined the tables, renamed one column and dropped another column.</p>
+<p><img style="max-width: 464.00px" src="img/1f44b6e8bc0b5be0.png"></p>
+<p>Now, if I am leading the data mining team at olist, I would like to take a pause and think about who my end customers are and how might they use this information to improve the quality of their decisions. Some of the possible end customers seem to be:</p>
+<ol type="1" start="1">
+<li>Marketing team which may want to see the top selling categories, products etc.</li>
+<li>Human resources team which might want to see what days of the year, month and week and what times of the day do products sell the most so they can align their hiring practices to match up with the ups and downs of order volumes.</li>
+<li>Operations and supply chain team which might use the same information as in #2 above to align resources such as trucks and warehouse capacity to flex according to need.</li>
+<li>Advertising team which might want to use the same information as in #2 above, to modify my advertising messages , coupons and discounts to align with the peaks and troughs of demand.</li>
+<li>Pricing strategy team which might want to use the same information as in #2 above to decide how to change price strategically through different time periods.</li>
+</ol>
+<p>There can be many other decisions that different stakeholders might be interested in looking at. </p>
+<p>Now, we want to ensure that in our dataset, we have all the fields that we might need to use as &#34;Metrics&#34; or &#34;Dimensions&#34; to create analysis that supports such organizational decisions.</p>
+<p>In our current data set, one of the dimensions that is not clearly separated out is date, time of day, day of week, day of month and so on.</p>
+<p>In the next set of steps, we add steps to our recipe to extract these values from the different timestamp fields - example the &#34;order_purchase_timestamp&#34; field.</p>
+<p>[Note: If you are wondering how these timestamp fields get generated, think of when you are checking out of a Walmart (ok, out of a Louis Vuitton - I&#39;ve never been into one, but may be no self-checkouts in that store?) → At the time you scan the barcode of the item while checking out, a timestamp is automatically recorded into a field in a database table of Walmart&#39;s IT system. Similar timestamps are recorded when your credit card is processed and so on.]</p>
+<h2><strong>Add Steps to Recipe to Extract Date and Time Values from TimeStamps</strong></h2>
+<p>If in the process of massaging the data in the preview pane, the recipe steps have disappeared from the right hand pane of your screen, you can get it back by clicking on the bulleted list icon as shown in screen below.</p>
+<p><img style="max-width: 364.00px" src="img/684258b589115aab.png"></p>
+<p>Click on <strong>Split </strong>icon [ <img style="max-width: 36.00px" src="img/485d60c53adaa422.png">] on top menu list of transformations →  Choose column <strong>order_purchase_timestamp</strong> to split → Specify to split at <strong>position</strong> 19 → Click <strong>Add</strong></p>
+<p>We are splitting at 19, since once we remove the trailing digits at the end, DataPrep recognizes the resulting field as a date time value (as you will notice with the clock icon beside the resulting column). </p>
+<p><img style="max-width: 408.51px" src="img/4e110e8e958716ce.png"></p>
+<p><strong>Delete </strong>the column with trailing digits</p>
+<p><img style="max-width: 624.00px" src="img/b791a50ed0ec8a73.png"></p>
+<p><strong>Rename</strong> order_purchase_timestamp1 to order_timestamp.</p>
+<p><img style="max-width: 461.00px" src="img/6d018db4bac87313.png"></p>
+<p>Next click on the <strong>Extract</strong> icon[<img style="max-width: 41.00px" src="img/5003c0a9672e471e.png">] to extract the time field from the order_timeStamp field using as shown below. This extraction happens by specifying the pattern of the text to be extracted.  Click on <strong>Add</strong></p>
+<p><img style="max-width: 624.00px" src="img/191aab6ab4170748.png"></p>
+<p><strong>Rename</strong> the extracted time field to order_time → Click on <strong>Add</strong>.</p>
+<p><img style="max-width: 457.00px" src="img/228c308355c85bab.png"></p>
+<p>Next Extract fields such as year , day of month etc. from these fields.  Below is set of steps that you need to add to your recipe to get these values.</p>
+<p><img style="max-width: 437.00px" src="img/77c96a5c9684ed49.png"></p>
+<p>Apply the same treatment as above in steps 4-12 to the field →  &#34;order_delivered_customer_date&#34;</p>
+<p>Your recipe should now consist of the following steps:</p>
+<p><img style="max-width: 458.00px" src="img/98014c169a0d7956.png"></p>
+<h2><strong>Calculate Delivery Time for Each Order</strong></h2>
+<p>We will now add a step to calculate the time taken for delivery for each order. We will do this by subtracting the time of delivery from the time the order was placed.</p>
+<p>Click on <strong>Functions</strong> icon [<img style="max-width: 39.00px" src="img/56bf31c2037ad1dc.png">] from top menu of transformation functions → Select <strong>Dates and times</strong> → Select <strong>DATEDIF</strong>   (DATEDIF calculates the time between two dates)</p>
+<p><img style="max-width: 411.00px" src="img/30c8fee56ba861e4.png"></p>
+<p>In the right pane enter the dates as shown below and name the newly calculated field as <strong>LeadTime → </strong>Click on <strong>Add.</strong></p>
+<p><img style="max-width: 447.00px" src="img/a5f0dda745334659.png"></p>
+<p>Finally Your Recipe Should Look As Follows. <strong>Review</strong> to ensure it does → Click <strong>Run Job</strong></p>
+<p><img style="max-width: 498.00px" src="img/76f24e7c94aba38f.png"></p>
+<p><img style="max-width: 624.00px" src="img/ddd86b662fafcd7a.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Store Data (Big Query)" duration="0">
+        <h2><strong>Store Resulting Data in Big Query</strong></h2>
+<p>We want to store the data generated from the Recipe into Big Query. To do this, Click <strong>Add Publishing Action</strong> → </p>
+<p><img style="max-width: 624.00px" src="img/7c37bb4822f5360.png"></p>
+<p>Select <strong>BigQuery</strong> → Select Database <strong>DPD_911data</strong> → </p>
+<p>(Note: The DPD_911 data set  was created in Big Query as part of the GCP(g) tutorial, so we do not need to create a separate one here. Check out GCP(g) for how to create data sets in Big Query) </p>
+<p><img style="max-width: 624.00px" src="img/c21b10410e5afaa4.png"></p>
+<p>Select <strong>Create a new table →</strong> Enter table name as <strong>olist_analyticsData</strong> → Select <strong>Drop the table every run</strong> → click <strong>Add</strong></p>
+<p><img style="max-width: 369.00px" src="img/79747eae54335959.png"></p>
+<h2><strong>Run the Recipe</strong></h2>
+<p>Till now we have been simply creating the recipe, not actually transforming the whole data set. The data that has been displayed is a sample and not the full data set.  In a sense, we have been prototyping what we want to do with our data set. In the next step, we run our recipe on our full dataset by clicking on &#34;run job&#34;.</p>
+<p>This job will take some time because we are applying multiple transformations to our data. In my case, it took around 20 minutes. Let the job run. Once completed, the job status will change from in progress to completed.</p>
+<p><img style="max-width: 624.00px" src="img/e8fb579c5b5d9298.png"></p>
+<p>Click <strong>Run Job</strong> → The job starts running</p>
+<p><img style="max-width: 624.00px" src="img/d0b72437b809a994.png"></p>
+<p><img style="max-width: 441.00px" src="img/77c638f0b5d7f10a.png"></p>
+<p>The job may run for a bit as significant data massaging is occuring in the background. You may want to take a break here and come back after a bit.</p>
+<p><img style="max-width: 406.00px" src="img/2fa6638f56b181f8.png"></p>
+<p>You can also check for status of job by clicking on the jobs icon [<img style="max-width: 33.00px" src="img/581822572692392.png"> ] on left hand side menu.</p>
+<p><img style="max-width: 624.00px" src="img/61a54ffe1b45d7dd.png"></p>
+<p>It took 11 minutes for me to run this job.<img style="max-width: 624.00px" src="img/92d9768eee127e7e.png"></p>
+<h2><strong>View the Recipe Report</strong></h2>
+<p>You can view a report on the recipe by clicking on the job ID in the list of jobs. In my case the job ID was 969611. I click on it and it gives me a detailed report on all the transformations and results that were generated as part of the job.</p>
+<p><img style="max-width: 598.00px" src="img/b22e7fc2823217fc.png"></p>
+<p>Here is a screen shot of the report.</p>
+<p><img style="max-width: 624.00px" src="img/e91baf2641963710.png"></p>
+<h2><strong>Review Data in Big Query</strong></h2>
+<p>Since I selected creation of a new table in Big Query as the publishing action for this job, I should see that table in BQ. Go to Big Query in GCP Console to ensure that the table has been created.</p>
+<p>Go to <strong>Home</strong> of GCP Cloud Console → Browse to <strong>Big Query</strong> Web UI → Make sure the correct project is selected (<strong>Detroit911</strong>) → Click on <strong>Resources</strong> → Click on Data set <strong>DPD_911data</strong> → Click on <strong>olist_analyticsData</strong> table</p>
+<p>Review the <strong>Details</strong> to ensure that you can see the Data table in Big Query has all the data that you expect it to have.</p>
+<p><img style="max-width: 567.00px" src="img/e1d25aa11a0cdab2.png"></p>
+<p>Click on <strong>Schema</strong> to review the table schema.</p>
+<ul>
+<li>I can see that all 100,000 records came through from the files into this table.</li>
+</ul>
+<p><img style="max-width: 464.00px" src="img/4a6524bf2a9232fe.png"></p>
+<p>Click on <strong>Preview</strong> to see sample data in the table.</p>
+<p><img style="max-width: 624.00px" src="img/f6d40598cceb9f6b.png"></p>
+<p>Thus now the data is available in Big Query in table &#34;olist_analyticsData&#34;, inside data set &#34;DPD_911data&#34;.</p>
+<p>Till now we have completed importing data, transforming data and storing it in Big Query. In the next step, we will use this data in Big Query to do analytics in Data Studio.</p>
+<p>Now that we have the data in Big Query, we can use Data Studio to visualize and run analytics on this data set.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Analyze Data (Data Studio)" duration="0">
+        <h2><strong>Independent Assignment Work</strong></h2>
+<p>Imagine that you are leading the data science team at olist. You have been tasked by the CEO to leverage analytics to enable better decision making across the organization. The CEO has indicated that he will fund growing the data science team but he needs to be convinced of the ability of the data science time starting with you. The olist CEO is the founder and a highly technology oriented guy. He believes that people who run technology teams should be strong technically themselves to be effective. </p>
+<p>You had this meeting Friday evening and you wake up early morning on Saturday thinking about a plan of action. You sit down in your study with a blank sheet of paper and close your eyes, deep in thought. </p>
+<p>Suddenly your thought veers towards the data mining class you had taken at Wayne State. In the first half of the class you had learnt the business aspect of data mining and in the second half you had done the technical side. Fortunately, you had been very diligent through your business degree and had stored all the course materials. One of the course materials was a detailed tutorial that walked you through the steps of a full life cycle analytics project. You had also learnt about different frameworks to execute analytics projects.</p>
+<p>You pull out all those materials together and slowly a plan of action emerges. You jot down your plan on the blank sheet of paper. </p>
+<p>Here is the plan you layout on the blank sheet of paper:</p>
+<ol type="1" start="1">
+<li>Identify five key decisions that can be enabled by the data set at hand.</li>
+<li>For each decision:</li>
+</ol>
+<ol type="1" start="1">
+<li>Provide a layman description</li>
+<li>Department(s)</li>
+<li>Stakeholder(s)</li>
+</ol>
+<ol type="1" start="3">
+<li>Design a layout of the report </li>
+</ol>
+<ol type="1" start="1">
+<li>What are the dimensions and metrics that you will report on.</li>
+<li>What is the type of chart you will use (timeline, pie, bar graph etc.)</li>
+</ol>
+<ol type="1" start="4">
+<li>Use GCP Data Studio to create these five reports.</li>
+<li>Create each report on a separate tab in Google Studio</li>
+<li>Share the Data Studio report with your CEO. His email is <a href="mailto:ajitsurfs@gmail.com" target="_blank">ajitsurfs@gmail.com</a></li>
+</ol>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Notes." duration="0">
+        <p>You can collaborate with your colleagues in working on this project. However, the work should be done independently by you and shared with me by you. Also, please make sure that your work is not a duplicate copy of someone else&#39;s work.</p>
+<p>Best.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>
