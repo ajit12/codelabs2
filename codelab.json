@@ -1,0 +1,36 @@
+{
+  "environment": "web",
+  "source": "1pXUbyaN5z_IcQIfhrND8oFSgY260j2SLN74gUczZJ4A/edit#",
+  "format": "html",
+  "prefix": "../../",
+  "mainga": "UA-49880327-14",
+  "updated": "2018-10-31T16:18:46Z",
+  "id": "",
+  "duration": 0,
+  "title": "Analytics Full Life Cycle Project [Independent]",
+  "author": "imfundo",
+  "summary": "In this series of labs you'll ingest→ Store → Transform → Visualize a Big Data Set consisting of E-commerce transactions",
+  "theme": "web",
+  "status": [
+    "draft"
+  ],
+  "category": [
+    "Web"
+  ],
+  "tags": [
+    "cds17",
+    "chrome-dev-summit-2016",
+    "gdd17",
+    "io2016",
+    "io2017",
+    "io2018",
+    "jsconfeu",
+    "kiosk",
+    "pwa-dev-summit",
+    "pwa-roadshow",
+    "tag-web",
+    "typtwd17",
+    "web"
+  ],
+  "url": ""
+}
